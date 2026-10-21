@@ -1,0 +1,903 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Carnet d'erreurs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+
+    /* Coolors palette: 590d22–800f2f–a4133c–c9184a–ff4d6d–ff758f–ff8fa3–ffb3c1–ffccd5–fff0f3 */
+    --wine: #590D22;
+    --wine-soft: #800F2F;
+    --red: #A4133C;
+    --rose: #C9184A;
+    --rose-mid: #FF4D6D;
+    --pink: #FF758F;
+    --bg: #FFF0F3;
+    --bg-alt: #FFCCD5;
+    --panel: #FFFFFF;
+    --ink: #590D22;
+    --ink-soft: #A4133C;
+    --line: #FFB3C1;
+    --mono-bg: #FFF0F3;
+    --shadow: 0 1px 3px rgba(89, 13, 34, 0.08);
+    --chip-off-bg: #FFFFFF;
+    --chip-off-ink: #A4133C;
+    --done-ink: #590D22;
+    --done-bg: #FFCCD5;
+    --revoir-ink: #FFFFFF;
+    --revoir-bg: #C9184A;
+  }
+
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --wine: #FF8FA3;
+    --wine-soft: #FFB3C1;
+    --red: #FF758F;
+    --rose: #FF4D6D;
+    --rose-mid: #C9184A;
+    --pink: #A4133C;
+    --bg: #2A0812;
+    --bg-alt: #3A0F1D;
+    --panel: #3A0F1D;
+    --ink: #FFE3E9;
+    --ink-soft: #E88FA0;
+    --line: #5C1B2E;
+    --mono-bg: #22060E;
+    --shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    --chip-off-bg: #3A0F1D;
+    --chip-off-ink: #E88FA0;
+    --done-ink: #FFE3E9;
+    --done-bg: #4A1420;
+    --revoir-ink: #2A0812;
+    --revoir-bg: #FF758F;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Quicksand', -apple-system, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  a { color: var(--rose); }
+  a:hover { color: var(--rose-mid); }
+
+  .page {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 48px 40px 100px;
+    font-size: 17px;
+  }
+
+  @media (max-width: 600px) {
+    .page { padding: 32px 18px 80px; }
+  }
+
+  /* --- Header --- */
+  .masthead {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid var(--line);
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+
+  .title-row { display: flex; align-items: center; gap: 10px; }
+
+  h1 {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 36px;
+    color: var(--wine);
+    letter-spacing: 0.01em;
+  }
+
+  .header-side { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-top: 6px;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+  }
+
+  .autosave-indicator {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--rose);
+    background: var(--bg-alt);
+    padding: 2px 8px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .autosave-indicator.visible { opacity: 1; }
+
+  .count {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--rose);
+    padding: 8px 15px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--panel);
+    border: 1.5px solid var(--line);
+    color: var(--ink);
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    border-radius: 6px;
+    padding: 9px 14px 9px 11px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .theme-toggle:hover { background: var(--bg-alt); }
+  .theme-toggle svg { flex-shrink: 0; width: 15px; height: 15px; }
+
+  /* --- Capture card --- */
+  .capture {
+    background: var(--panel);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 22px 22px 20px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow);
+  }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--red);
+    display: block;
+    margin-bottom: 7px;
+    margin-top: 18px;
+  }
+  .field-label:first-of-type { margin-top: 2px; }
+
+  input.chapitre-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 16px;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 600;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input.chapitre-input:focus { border-color: var(--rose); }
+  input.chapitre-input::placeholder { color: var(--ink-soft); font-family: 'Quicksand', sans-serif; font-weight: 400; }
+
+  textarea.field-area {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 13px 15px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--ink);
+    resize: vertical;
+    min-height: 70px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  textarea.field-area:focus { border-color: var(--rose); }
+  textarea.field-area::placeholder { font-family: 'Quicksand', sans-serif; color: var(--ink-soft); }
+
+  .erreur-field textarea.field-area { border-left: 3px solid var(--rose-mid); }
+  .correction-field textarea.field-area { border-left: 3px solid var(--wine); }
+
+  .capture-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .toggle-revoir {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 14px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+  }
+  .toggle-revoir input { accent-color: var(--rose); width: 17px; height: 17px; }
+
+  button.save-btn {
+    background: var(--rose);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 12px 26px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button.save-btn:disabled { opacity: 0.35; cursor: default; }
+  button.save-btn:hover:not(:disabled) { background: var(--wine-soft); }
+
+  /* --- Filters --- */
+  .filters {
+    display: flex;
+    gap: 9px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 140px;
+    background: var(--panel);
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    font-size: 15px;
+    padding: 10px 15px;
+    color: var(--ink);
+    outline: none;
+    font-family: 'Quicksand', sans-serif;
+  }
+  .search-input:focus { border-color: var(--rose); }
+  .search-input::placeholder { color: var(--ink-soft); }
+
+  .chip {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: 1.5px solid var(--line);
+    background: var(--chip-off-bg);
+    color: var(--chip-off-ink);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .chip.active {
+    background: var(--rose);
+    color: #fff;
+    border-color: var(--rose);
+  }
+
+  /* --- Entries --- */
+  .entry {
+    background: var(--panel);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .entry-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1.5px solid var(--line);
+    background: var(--bg-alt);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .entry-tag-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  .chapitre-tag {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--wine);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 5px 12px;
+  }
+
+  .stamp {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .stamp.resolu { color: var(--done-ink); background: var(--done-bg); }
+  .stamp.revoir { color: var(--revoir-ink); background: var(--revoir-bg); }
+
+  .entry-meta {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  .entry-actions { display: flex; gap: 14px; align-items: center; }
+  .icon-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 700; color: var(--ink-soft);
+    font-family: 'Quicksand', sans-serif;
+  }
+  .icon-btn:hover { color: var(--rose); }
+  .icon-btn.delete-btn:hover { color: var(--red); }
+
+  .entry-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+  .block { border-left: 3px solid var(--line); padding-left: 14px; }
+  .block.erreur { border-left-color: var(--rose-mid); }
+  .block.correction { border-left-color: var(--wine); }
+
+  .block-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .block.erreur .block-label { color: var(--rose-mid); }
+  .block.correction .block-label { color: var(--wine); }
+
+  .block-content {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 14.5px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--ink);
+    background: var(--mono-bg);
+    border-radius: 8px;
+    padding: 13px 15px;
+  }
+
+  /* --- Edit mode --- */
+  .edit-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .edit-actions button {
+    font-size: 13px; font-weight: 700; padding: 9px 17px;
+    border-radius: 8px; cursor: pointer; border: 1.5px solid var(--line);
+    background: var(--panel); color: var(--ink-soft);
+    font-family: 'Quicksand', sans-serif;
+  }
+  .edit-actions button.confirm {
+    background: var(--rose);
+    color: #fff; border-color: var(--rose);
+  }
+
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--ink-soft);
+    font-size: 14px;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 600;
+  }
+  .status { text-align: center; font-size: 11px; color: var(--ink-soft); padding: 16px 0; font-family: monospace; }
+  .status.error { color: var(--red); }
+
+  @media (max-width: 480px) {
+    .masthead { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .header-side { width: 100%; justify-content: space-between; }
+  }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <div>
+      <div class="title-row">
+        <h1>Carnet d'erreurs</h1>
+      </div>
+      <div class="subtitle">Chapitre · Erreur · Correction <span class="autosave-indicator" id="autosaveIndicator">✓ sauvegardé</span></div>
+    </div>
+    <div class="header-side">
+      <button class="theme-toggle" id="themeToggle" type="button">
+        <svg id="themeIconSun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg id="themeIconMoon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+        <span id="themeLabel">Sombre</span>
+      </button>
+      <span class="count" id="count">0 fiches</span>
+    </div>
+  </header>
+
+  <div class="capture">
+    <span class="field-label">Chapitre / thème</span>
+    <input class="chapitre-input" id="chapitreInput" placeholder="ex : Fonctions, Opérateurs, Variables..." />
+
+    <div class="erreur-field">
+      <span class="field-label">Erreur — ce que j'ai fait</span>
+      <textarea class="field-area" id="erreurInput" placeholder="Décris ou colle le code de l'erreur..."></textarea>
+    </div>
+
+    <div class="correction-field">
+      <span class="field-label">Correction</span>
+      <textarea class="field-area" id="correctionInput" placeholder="La bonne version, avec l'explication..."></textarea>
+    </div>
+
+    <div class="capture-footer">
+      <label class="toggle-revoir">
+        <input type="checkbox" id="revoirCheckbox" />
+        À revoir cette semaine
+      </label>
+      <button class="save-btn" id="saveBtn" disabled>Ajouter la fiche</button>
+    </div>
+  </div>
+
+  <div class="filters">
+    <input class="search-input" id="searchInput" placeholder="Chercher (chapitre, texte)..." />
+    <span class="chip active" data-filter="all">Toutes</span>
+    <span class="chip" data-filter="revoir">À revoir</span>
+    <span class="chip" data-filter="resolu">Maîtrisées</span>
+  </div>
+
+  <div id="list"></div>
+  <div id="status" class="status"></div>
+</div>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'carnet-erreurs-v2';
+  const THEME_KEY = 'carnet-erreurs-theme';
+
+  const chapitreInput = document.getElementById('chapitreInput');
+  const erreurInput = document.getElementById('erreurInput');
+  const correctionInput = document.getElementById('correctionInput');
+  const revoirCheckbox = document.getElementById('revoirCheckbox');
+  const saveBtn = document.getElementById('saveBtn');
+  const list = document.getElementById('list');
+  const countEl = document.getElementById('count');
+  const statusEl = document.getElementById('status');
+  const searchInput = document.getElementById('searchInput');
+  const autosaveEl = document.getElementById('autosaveIndicator');
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIconSun = document.getElementById('themeIconSun');
+  const themeIconMoon = document.getElementById('themeIconMoon');
+  const themeLabel = document.getElementById('themeLabel');
+
+  // --- Theme ---
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') {
+      themeIconSun.hidden = true;
+      themeIconMoon.hidden = false;
+      themeLabel.textContent = 'Clair';
+    } else {
+      themeIconSun.hidden = false;
+      themeIconMoon.hidden = true;
+      themeLabel.textContent = 'Sombre';
+    }
+  }
+
+  function loadTheme() {
+    let theme = 'light';
+    try {
+      const stored = localStorage.getItem(THEME_KEY);
+      if (stored === 'dark' || stored === 'light') {
+        theme = stored;
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        theme = 'dark';
+      }
+    } catch (err) {}
+    applyTheme(theme);
+  }
+
+  themeToggle.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (err) {}
+  });
+
+  loadTheme();
+
+  // --- Entries app ---
+  let entries = [];
+  let loaded = false;
+  let editingId = null;
+  let searchTerm = '';
+  let activeFilter = 'all';
+
+  const DEFAULT_ENTRIES = [
+    {
+      id: 'err-001',
+      chapitre: 'CONVERSION INT() NON STOCKÉE — CONTOURNEMENT EN DUR',
+      erreur: `cost_per_files = "35"
+int("35")
+35
+total_remédiation = cost_per_files * total_files
+→ "35" répété 322 fois (concaténation de texte, pas multiplication)
+
+total_remédiation = 35 * total_files
+→ 11270 (résultat correct, mais valeur retapée en dur)
+
+J'ai tapé int("35") dans le terminal mais sans stocker le résultat dans une variable. cost_per_files est resté du texte (str). Pour contourner, j'ai retapé 35 en dur au lieu d'utiliser la variable convertie.`,
+      correction: `cost_per_files = int(cost_per_files)
+total_remédiation = cost_per_files * total_files
+→ 11270
+
+int() convertit une valeur, mais ne modifie pas automatiquement la variable d'origine — il faut réaffecter le résultat de la conversion dans la variable elle-même (ou une autre) pour que le changement soit effectif. Taper int("35") seul dans le terminal affiche 35 mais ne change rien en mémoire.`,
+      revoir: false,
+      ts: new Date('2026-08-16T13:31:00').getTime()
+    },
+    {
+      id: 'err-002',
+      chapitre: 'RÈGLE DU + MAL FORMULÉE — CONFUSION VARIABLE / TYPE DE VALEUR',
+      erreur: `menace_detecté = type_menace + cible
+print(menace_detecté)              → phishingbanque en ligne
+# ON NE PEUX PAS additionner du texte avec UN NOMBRE
+# SEULEMENT 2 noms de variables ou 2 nombres
+
+Le code était juste, mais mon explication en commentaire était fausse. J'ai dit que la règle portait sur "2 noms de variables ou 2 nombres" — ce n'est pas la variable qui compte.`,
+      correction: `Ce qui détermine si + fonctionne, c'est le type de la valeur contenue, pas le fait que ce soit une variable ou une valeur écrite en dur :
+
+str + str → concaténation (marche)
+int + int ou float + float → addition (marche)
+str + int → plante (TypeError), que ce soit type_menace + 5 ou type_menace + un_nombre_stocké_dans_une_variable
+
+La distinction n'est jamais "variable vs valeur en dur", c'est toujours "quel type contient la variable au moment de l'opération".`,
+      revoir: false,
+      ts: new Date('2026-08-13T17:31:00').getTime()
+    },
+    {
+      id: 'err-003',
+      chapitre: "VALEURS RETAPÉES EN DUR AU LIEU D'UTILISER LES VARIABLES EXISTANTES",
+      erreur: `prenom_cible = "Jean"
+nom_cible = "Dupont"
+nom_complet = "Jean" + "Dupont"
+print(nom_complet)                    → JeanDupont
+
+J'avais déjà stocké prenom_cible et nom_cible, mais pour l'addition j'ai retapé les valeurs en dur au lieu d'utiliser mes variables. Le résultat affiché est identique, donc l'erreur ne se voit pas à l'écran.`,
+      correction: `nom_complet = prenom_cible + nom_cible
+
+Retaper une valeur en dur casse l'intérêt d'avoir une variable : si prenom_cible change plus tard (nouvelle cible, donnée mise à jour), le code codé en dur reste bloqué sur l'ancienne valeur alors que la variable, elle, aurait suivi le changement. Toujours utiliser la variable une fois qu'elle existe, pas retaper sa valeur.`,
+      revoir: false,
+      ts: new Date('2026-08-13T01:24:00').getTime()
+    },
+    {
+      id: 'err-004',
+      chapitre: 'TYPE() SANS PRINT() — MÊME PIÈGE QUE LE TERMINAL INTERACTIF',
+      erreur: `>>> type(alertes)
+<class 'int'>
+>>> type(message)
+<class 'str'>
+
+J'ai tapé type() seul dans le terminal, sans print(). Ça affiche le résultat automatiquement dans le mode interactif (>>>), mais ça n'afficherait rien dans un script .py exécuté normalement.`,
+      correction: `print(type(alertes))
+print(type(message))
+
+Le terminal interactif exécute et affiche automatiquement le résultat de toute expression tapée seule — c'est un comportement propre au mode >>>, pas une règle générale de Python. Dans un fichier .py, il faut toujours print() explicitement pour voir un résultat à l'écran. Même piège que déjà noté avec 13 % 2.`,
+      revoir: false,
+      ts: new Date('2026-08-13T00:45:00').getTime()
+    },
+    {
+      id: 'err-005',
+      chapitre: "INCRÉMENTATION CONFONDUE AVEC CRÉATION D'UNE NOUVELLE VARIABLE",
+      erreur: `score_initial = 9
+score_final = score_initial + 2
+print(score_final)                    → 11
+
+L'énoncé demandait d'appliquer le bonus par incrémentation, mais j'ai créé une nouvelle variable (score_final) au lieu d'écraser score_initial avec sa propre valeur augmentée. Le résultat final est juste (11), mais ce n'est pas une incrémentation.`,
+      correction: `score_initial = score_initial + 2     → 11
+print(score_initial)
+
+L'incrémentation, c'est toujours variable = variable + valeur sur la même variable — elle prend sa propre valeur actuelle, calcule, et remplace. Créer une variable séparée pour stocker un résultat calculé n'est pas de l'incrémentation, même si le chiffre final est identique.`,
+      revoir: false,
+      ts: new Date('2026-08-13T00:30:00').getTime()
+    },
+    {
+      id: 'err-006',
+      chapitre: 'MODULO CALCULÉ SUR UN RÉSULTAT DÉJÀ DIVISÉ, PAS SUR LES VALEURS DE BASE',
+      erreur: `année = 365
+changement = 90
+nb_changement = année / changement        → 4.055555555555555
+reste = (nb_changement * changement) - année
+print(reste)                               → 0.0
+
+J'ai calculé le reste à partir de nb_changement, une valeur déjà transformée par la division. Le résultat était faux (0.0 au lieu du vrai reste).`,
+      correction: `reste = année % changement                 → 5
+
+% se calcule toujours directement sur les deux valeurs de départ (année et changement), jamais sur un résultat intermédiaire déjà divisé. a % b répond à "qu'est-ce qu'il reste quand je divise a par b" — pas besoin de diviser avant, l'opérateur le fait tout seul.`,
+      revoir: false,
+      ts: new Date('2026-08-01T02:19:00').getTime()
+    },
+    {
+      id: 'err-007',
+      chapitre: 'EXPRESSION SANS PRINT() — PIÈGE DU TERMINAL INTERACTIF',
+      erreur: `>>> 13 % 2
+1
+
+Le terminal interactif (>>>) affiche automatiquement le résultat d'une expression tapée seule. Dans un script .py, cette ligne ne produit rien à l'écran.`,
+      correction: `print(total % 2)
+
+Si l'énoncé dit "affiche", toujours utiliser print(). Le terminal interactif est un cas particulier, pas la règle générale.`,
+      revoir: false,
+      ts: new Date('2026-08-01T01:59:00').getTime()
+    },
+    {
+      id: 'err-008',
+      chapitre: 'ÉCRASEMENT DE VARIABLE NON VOULU',
+      erreur: `total = contact_j1 + contact_j2 + contact_j3
+print(total)                                    → 13
+total = (contact_j1 + contact_j2 + contact_j3) / 3
+print(total)                                    → 4.333
+
+total valait 13, puis j'ai réutilisé le même nom pour stocker la moyenne. La valeur 13 est perdue, écrasée par 4.333.`,
+      correction: `moyenne = total / 3
+
+Si une valeur doit rester accessible plus tard, créer une variable séparée. Écraser = remplacer définitivement, pas temporairement.`,
+      revoir: false,
+      ts: new Date('2026-08-01T01:58:00').getTime()
+    },
+    {
+      id: 'err-009',
+      chapitre: 'OPÉRATEURS — DIVISION (/) VS MODULO (%)',
+      erreur: `répartition_7 = budget / 7        → 10714.285714285714
+reste = budget % 7                 → 2
+total_distribution = répartition_7 * 7  → 75000.0
+
+J'ai cru qu'il y avait une incohérence entre "reste = 2" et "total distribué = 75000 (donc tout distribué)".`,
+      correction: `/ = division précise, garde les décimales. % = reste en division entière, sans décimales. Deux calculs différents, pas censés "s'accorder" entre eux.`,
+      revoir: false,
+      ts: new Date('2026-07-28T13:24:00').getTime()
+    },
+    {
+      id: 'err-010',
+      chapitre: 'VARIABLES — CONSTANTES NUMÉRIQUES VS TEXTE',
+      erreur: `age = "34"
+nb_incidents = "12"`,
+      correction: `age = 34
+nb_incidents = 12
+
+Sans guillemets = nombre, calculable (age + 1 marche). Avec guillemets = texte, juste affichable, pas calculable. Même logique que constante numérique vs constante texte sur la flashcard.`,
+      revoir: false,
+      ts: new Date('2026-07-28T12:36:00').getTime()
+    }
+  ];
+
+  function fmtDate(ts) {
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2, '0');
+    return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function checkFormValid() {
+    const valid = erreurInput.value.trim().length > 0 && correctionInput.value.trim().length > 0;
+    saveBtn.disabled = !valid;
+  }
+  [chapitreInput, erreurInput, correctionInput].forEach(el => el.addEventListener('input', checkFormValid));
+
+  function showAutosave() {
+    autosaveEl.classList.add('visible');
+    setTimeout(() => autosaveEl.classList.remove('visible'), 1500);
+  }
+
+  function persist() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      showAutosave();
+    } catch (err) {
+      statusEl.textContent = 'Erreur de sauvegarde.';
+      statusEl.classList.add('error');
+    }
+  }
+
+  function load() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        entries = JSON.parse(stored);
+      } else {
+        entries = DEFAULT_ENTRIES.slice();
+        persist();
+      }
+    } catch (err) {
+      entries = DEFAULT_ENTRIES.slice();
+    }
+    loaded = true;
+    render();
+  }
+
+  function matchesFilter(entry) {
+    if (activeFilter === 'revoir') return entry.revoir;
+    if (activeFilter === 'resolu') return !entry.revoir;
+    return true;
+  }
+
+  function matchesSearch(entry) {
+    if (!searchTerm) return true;
+    const s = searchTerm.toLowerCase();
+    return (entry.chapitre || '').toLowerCase().includes(s)
+      || entry.erreur.toLowerCase().includes(s)
+      || entry.correction.toLowerCase().includes(s);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function render() {
+    countEl.textContent = `${entries.length} fiche${entries.length !== 1 ? 's' : ''}`;
+
+    if (!loaded) { list.innerHTML = ''; return; }
+
+    const shown = entries.filter(e => matchesFilter(e) && matchesSearch(e));
+
+    if (shown.length === 0) {
+      list.innerHTML = `<div class="empty">${entries.length === 0 ? "Aucune fiche pour l'instant — ajoute ta première erreur ci-dessus." : 'Aucune fiche ne correspond.'}</div>`;
+      return;
+    }
+
+    list.innerHTML = shown.map(e => {
+      if (e.id === editingId) {
+        return `
+          <div class="entry" data-id="${e.id}">
+            <div class="entry-body">
+              <span class="field-label">Chapitre / thème</span>
+              <input class="chapitre-input" id="editChap-${e.id}" />
+              <div class="erreur-field">
+                <span class="field-label">Erreur</span>
+                <textarea class="field-area" id="editErr-${e.id}"></textarea>
+              </div>
+              <div class="correction-field">
+                <span class="field-label">Correction</span>
+                <textarea class="field-area" id="editCorr-${e.id}"></textarea>
+              </div>
+              <label class="toggle-revoir"><input type="checkbox" id="editRevoir-${e.id}" /> À revoir cette semaine</label>
+              <div class="edit-actions">
+                <button class="confirm" data-action="confirm" data-id="${e.id}">Enregistrer</button>
+                <button data-action="cancel" data-id="${e.id}">Annuler</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      return `
+        <div class="entry" data-id="${e.id}">
+          <div class="entry-top">
+            <div class="entry-tag-group">
+              <span class="chapitre-tag">${e.chapitre ? escapeHtml(e.chapitre) : 'Sans thème'}</span>
+              <span class="stamp ${e.revoir ? 'revoir' : 'resolu'}">${e.revoir ? 'À revoir' : 'Maîtrisée'}</span>
+            </div>
+            <div class="entry-actions">
+              <span class="entry-meta">${fmtDate(e.ts)}</span>
+              <button class="icon-btn" data-action="edit" data-id="${e.id}">Modifier</button>
+              <button class="icon-btn delete-btn" data-action="delete" data-id="${e.id}">Suppr.</button>
+            </div>
+          </div>
+          <div class="entry-body">
+            <div class="block erreur">
+              <div class="block-label">Erreur</div>
+              <div class="block-content"></div>
+            </div>
+            <div class="block correction">
+              <div class="block-label">Correction</div>
+              <div class="block-content"></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    shown.forEach(e => {
+      const el = list.querySelector(`.entry[data-id="${e.id}"]`);
+      if (!el) return;
+      if (e.id === editingId) {
+        el.querySelector(`#editChap-${e.id}`).value = e.chapitre || '';
+        el.querySelector(`#editErr-${e.id}`).value = e.erreur;
+        el.querySelector(`#editCorr-${e.id}`).value = e.correction;
+        el.querySelector(`#editRevoir-${e.id}`).checked = !!e.revoir;
+      } else {
+        const blocks = el.querySelectorAll('.block-content');
+        blocks[0].textContent = e.erreur;
+        blocks[1].textContent = e.correction;
+      }
+    });
+
+    list.querySelectorAll('[data-action]').forEach(btn => {
+      const id = btn.getAttribute('data-id');
+      const action = btn.getAttribute('data-action');
+      btn.addEventListener('click', () => {
+        if (action === 'edit') { editingId = id; render(); }
+        if (action === 'cancel') { editingId = null; render(); }
+        if (action === 'delete') { deleteEntry(id); }
+        if (action === 'confirm') { confirmEdit(id); }
+      });
+    });
+  }
+
+  function addEntry() {
+    const erreur = erreurInput.value.trim();
+    const correction = correctionInput.value.trim();
+    if (!erreur || !correction) return;
+    entries.unshift({
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random(),
+      chapitre: chapitreInput.value.trim(),
+      erreur,
+      correction,
+      revoir: revoirCheckbox.checked,
+      ts: Date.now()
+    });
+    chapitreInput.value = ''; erreurInput.value = ''; correctionInput.value = ''; revoirCheckbox.checked = false;
+    checkFormValid();
+    render();
+    persist();
+  }
+
+  function confirmEdit(id) {
+    const chap = document.getElementById(`editChap-${id}`).value.trim();
+    const err = document.getElementById(`editErr-${id}`).value.trim();
+    const corr = document.getElementById(`editCorr-${id}`).value.trim();
+    const revoir = document.getElementById(`editRevoir-${id}`).checked;
+    if (!err || !corr) return;
+    const entry = entries.find(e => e.id === id);
+    entry.chapitre = chap; entry.erreur = err; entry.correction = corr; entry.revoir = revoir;
+    editingId = null;
+    render();
+    persist();
+  }
+
+  function deleteEntry(id) {
+    entries = entries.filter(e => e.id !== id);
+    if (editingId === id) editingId = null;
+    render();
+    persist();
+  }
+
+  saveBtn.addEventListener('click', addEntry);
+  searchInput.addEventListener('input', () => { searchTerm = searchInput.value; render(); });
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeFilter = chip.getAttribute('data-filter');
+      render();
+    });
+  });
+
+  load();
+})();
+</script>
+
+</body></html>
